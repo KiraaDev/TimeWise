@@ -1,5 +1,6 @@
 import React from "react";
 import { Card } from "./ui/card";
+import { Button } from "./ui/button";
 
 const DeleteModal: React.FC = () => {
 
@@ -7,7 +8,7 @@ const DeleteModal: React.FC = () => {
         <>
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50 overflow-y-scroll">
                 <Card className="w-96 absolute z-20 ">
-                    
+                    <Button></Button>
                 </Card>
             </div>
         </>
