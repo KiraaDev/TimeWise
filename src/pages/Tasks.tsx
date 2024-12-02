@@ -1,31 +1,59 @@
 import { Input } from '../components/ui/input'
 import { Button } from "../components/ui/button";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import AllTaskTable from '@/components/AllTasksTable';
 import NewTaskCard from '@/components/NewTaskCard'
 import { Task } from '@/types/Task';
+import { Select } from "../components/ui/select";
+import { SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 
 const Tasks: React.FC = () => {
 
-    const [tasks, setTasks] = React.useState<Task[]>([]);
-    const [isOpen, setIsOpen] = React.useState(false);
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
+    const [filterPriority, setFilterPriority] = useState<string>('');
+    const [isOpen, setIsOpen] = useState(false);
+    const [searchInput, setSearchInput] = useState<string>('');
 
-    React.useEffect(() => {
-
+    useEffect(() => {
         const storedTasks = localStorage.getItem("tasks");
 
         if (storedTasks) {
             setTasks(JSON.parse(storedTasks));
+            setFilteredTasks(JSON.parse(storedTasks));
+        }
+    }, [])
+
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setSearchInput(value)
+
+        if (value === "") {
+            setFilteredTasks(tasks);
+        } else {
+            const filtered = tasks.filter((task) =>
+                task.title.toLowerCase().includes(value.toLowerCase())
+            );
+            setFilteredTasks(filtered);
+        }
+    }
+
+    const handleFilterPriority = (value: string) => {
+        setFilterPriority(value)
+
+        if(value === 'all'){
+            return setFilteredTasks(tasks)
         }
 
-    }, [localStorage.getItem("tasks")])
+        const filteredPriority = tasks.filter((task) => task.priority === value)
 
-
+        setFilteredTasks(filteredPriority);
+    }
 
     const addNewTask = (newTask: Task) => {
         const updatedTasks = [...tasks, newTask];
         setTasks(updatedTasks);
-
+        setFilteredTasks(updatedTasks);
         localStorage.setItem("tasks", JSON.stringify(updatedTasks));
     };
 
@@ -47,13 +75,33 @@ const Tasks: React.FC = () => {
                     }
                 </div>
                 <div>
-                    <Input type='text' placeholder='Search here...' className='h-10 px-10' />
+                    <Input
+                        value={searchInput}
+                        onChange={handleSearch}
+                        type='text' placeholder='Search here...' className='h-10 px-10' />
                 </div>
             </div>
-            {/* all tasks table */}
             < div className="mt-20 w-full" >
+                <div className=" w-40 mb-2">
+                    <Select
+                    value={filterPriority}
+                    onValueChange={handleFilterPriority}
+                    defaultValue='all'
+                    >
+                        <SelectTrigger id="priority">
+                            <SelectValue placeholder='Select Priority' />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value='all'>All</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="low">Low</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                {/* all tasks table */}
                 <AllTaskTable
-                    tasks={tasks}
+                    tasks={filteredTasks}
                 />
             </div >
         </>
