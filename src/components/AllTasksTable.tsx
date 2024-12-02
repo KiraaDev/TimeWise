@@ -10,8 +10,21 @@ import {
 } from "./ui/table"
 import { Task } from "@/types/Task"
 import { getBadge } from "@/utils/getBadge";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "./ui/dropdown-menu"
+import { Button } from "./ui/button";
 
-const AllTaskTable: React.FC<{ tasks: Task[] }> = ({ tasks }) => {
+interface AllTasksTableProps {
+    tasks: Task[];
+    deleteTask: (index: number) => void;
+}
+
+const AllTaskTable: React.FC<AllTasksTableProps> = ({ tasks, deleteTask }) => {
 
     return (
         <>
@@ -24,6 +37,7 @@ const AllTaskTable: React.FC<{ tasks: Task[] }> = ({ tasks }) => {
                         <TableHead className="border-[1px] text-gray-700  text-center">Priority</TableHead>
                         <TableHead className="border-[1px] text-gray-700 text-center">Status</TableHead>
                         <TableHead className="border-[1px] text-gray-700">Estimated Time</TableHead>
+                        <TableHead className="border-[1px] text-gray-700">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -38,6 +52,25 @@ const AllTaskTable: React.FC<{ tasks: Task[] }> = ({ tasks }) => {
                                 <TableCell className="border-[1px] w-14">{getBadge(task.priority)}</TableCell>
                                 <TableCell className="border-[1px] text-center">{task.status}</TableCell>
                                 <TableCell className="border-[1px] font-semibold text-center">{task.estimatedTime}{task.timeUnit.toLocaleLowerCase()}</TableCell>
+                                <TableCell className="border-[1px]">
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger className=' text-center w-full font-extrabold text-2xl'>⋮</DropdownMenuTrigger>
+                                        <DropdownMenuContent>
+                                            <DropdownMenuItem>
+                                                <Button variant={'default'} className="w-full">View Task</Button>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem>
+                                                <Button className=" w-full bg-yellow-500 hover:bg-yellow-700">EDIT</Button>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem>
+                                                <Button 
+                                                onClick={() => deleteTask(index)}
+                                                variant={'destructive'} className=" w-full">DELETE</Button>
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </TableCell>
                             </TableRow>
                         ))}
                 </TableBody>

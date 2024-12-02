@@ -9,6 +9,7 @@ import {
 } from "./ui/table"
 import { Task } from "@/types/Task"
 import { getBadge } from "@/utils/getBadge";
+import { Button } from "./ui/button";
     
 const QuickViewTable: React.FC<{ tasks: Task[] }> = ({ tasks }) => {
 
@@ -26,6 +27,7 @@ const QuickViewTable: React.FC<{ tasks: Task[] }> = ({ tasks }) => {
                         <TableHead className="border-[1px] text-gray-700 text-center">Priority</TableHead>
                         <TableHead className="border-[1px] text-gray-700 text-center">Status</TableHead>
                         <TableHead className="border-[1px] text-gray-700">Estimated Time</TableHead>
+                        <TableHead className="border-[1px] text-gray-700">Action</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -42,6 +44,9 @@ const QuickViewTable: React.FC<{ tasks: Task[] }> = ({ tasks }) => {
                             <TableCell className="border-[1px] w-14">{getBadge(task.priority)}</TableCell>
                             <TableCell className="border-[1px] text-center">{task.status}</TableCell>
                             <TableCell className="border-[1px] font-semibold text-center">{task.estimatedTime}{task.timeUnit.toLocaleLowerCase()}</TableCell>
+                            <TableCell className="border-[1px]">
+                                <Button variant={'default'} className="w-full">View Task</Button>
+                            </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

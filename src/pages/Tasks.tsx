@@ -1,11 +1,11 @@
-import { Input } from '../components/ui/input'
-import { Button } from "../components/ui/button";
+import { Input } from '@/components/ui/input'
+import { Button } from "@/components/ui/button";
 import React, { useState, useEffect } from "react";
 import AllTaskTable from '@/components/AllTasksTable';
 import NewTaskCard from '@/components/NewTaskCard'
 import { Task } from '@/types/Task';
-import { Select } from "../components/ui/select";
-import { SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { Select } from "@/components/ui/select";
+import { SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Tasks: React.FC = () => {
 
@@ -24,6 +24,10 @@ const Tasks: React.FC = () => {
         }
     }, [])
 
+    const saveTaskToLocalStorage = (tasks: Task[]) => {
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setSearchInput(value)
@@ -41,7 +45,7 @@ const Tasks: React.FC = () => {
     const handleFilterPriority = (value: string) => {
         setFilterPriority(value)
 
-        if(value === 'all'){
+        if (value === 'all') {
             return setFilteredTasks(tasks)
         }
 
@@ -50,12 +54,25 @@ const Tasks: React.FC = () => {
         setFilteredTasks(filteredPriority);
     }
 
+    // (add, update, and delete) functions
+
     const addNewTask = (newTask: Task) => {
         const updatedTasks = [...tasks, newTask];
         setTasks(updatedTasks);
         setFilteredTasks(updatedTasks);
-        localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+        saveTaskToLocalStorage(updatedTasks)
     };
+
+    const deleteTask = (index: number) => {
+
+        const updatedTasks = [...tasks];
+
+        updatedTasks.splice(index, 1)
+
+        setFilteredTasks(updatedTasks)
+        setTasks(updatedTasks)
+        saveTaskToLocalStorage(updatedTasks)
+    }
 
     const openModal = () => {
         setIsOpen(true);
@@ -84,9 +101,9 @@ const Tasks: React.FC = () => {
             < div className="mt-20 w-full" >
                 <div className=" w-40 mb-2">
                     <Select
-                    value={filterPriority}
-                    onValueChange={handleFilterPriority}
-                    defaultValue='all'
+                        value={filterPriority}
+                        onValueChange={handleFilterPriority}
+                        defaultValue='all'
                     >
                         <SelectTrigger id="priority">
                             <SelectValue placeholder='Select Priority' />
@@ -102,8 +119,10 @@ const Tasks: React.FC = () => {
                 {/* all tasks table */}
                 <AllTaskTable
                     tasks={filteredTasks}
+                    deleteTask={deleteTask}
                 />
             </div >
+
         </>
     )
 }
