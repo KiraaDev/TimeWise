@@ -78,6 +78,7 @@ const Tasks: React.FC = () => {
         setIsOpen(true);
     }
 
+
     const closeModal = () => {
         setIsOpen(false)
     }

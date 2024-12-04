@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
     Table,
     TableBody,
@@ -18,6 +18,7 @@ import {
     DropdownMenuTrigger,
 } from "./ui/dropdown-menu"
 import { Button } from "./ui/button";
+import DeleteModal from "./DeleteModal";
 
 interface AllTasksTableProps {
     tasks: Task[];
@@ -25,6 +26,28 @@ interface AllTasksTableProps {
 }
 
 const AllTaskTable: React.FC<AllTasksTableProps> = ({ tasks, deleteTask }) => {
+
+
+    const [index, setIndex] = useState<number | null>(null)
+    const [deleteModal, setDeleteModal] = useState<boolean>(false)
+
+    const handleDeleteClick = (index: number) => {
+        setIndex(index);
+        setDeleteModal(true);
+    };
+
+    const confirmDelete = () => {
+        if (index !== null) {
+            deleteTask(index)
+        }
+        setDeleteModal(false);
+        setIndex(null);
+    }
+
+    const cancelDelete = () => {
+        setDeleteModal(false);
+        setIndex(null);
+    };
 
     return (
         <>
@@ -37,21 +60,28 @@ const AllTaskTable: React.FC<AllTasksTableProps> = ({ tasks, deleteTask }) => {
                         <TableHead className="border-[1px] text-gray-700  text-center">Priority</TableHead>
                         <TableHead className="border-[1px] text-gray-700 text-center">Status</TableHead>
                         <TableHead className="border-[1px] text-gray-700">Estimated Time</TableHead>
+                        <TableHead className="border-[1px] text-gray-700">Day | Date</TableHead>
                         <TableHead className="border-[1px] text-gray-700">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
+                    {
+                        deleteModal ? <DeleteModal onConfirm={confirmDelete} onCancel={cancelDelete} /> : ''
+                    }
                     {tasks.length === 0 ?
+
                         <TableRow>
                             <TableCell className="" colSpan={5}>No Tasks Found</TableCell>
                         </TableRow>
                         : tasks.map((task, index) => (
+
                             <TableRow key={index} className="h-20">
                                 <TableCell className="font-semibold border-[1px]">{task.title}</TableCell>
                                 <TableCell className="border-[1px]">{task.body}</TableCell>
                                 <TableCell className="border-[1px] w-14">{getBadge(task.priority)}</TableCell>
                                 <TableCell className="border-[1px] text-center">{task.status}</TableCell>
                                 <TableCell className="border-[1px] font-semibold text-center">{task.estimatedTime}{task.timeUnit.toLocaleLowerCase()}</TableCell>
+                                <TableCell className="border-[1px] font-semibold text-center">{task.date && new Date(task.date).toDateString()}</TableCell>
                                 <TableCell className="border-[1px]">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger className=' text-center w-full font-extrabold text-2xl'>⋮</DropdownMenuTrigger>
@@ -64,9 +94,9 @@ const AllTaskTable: React.FC<AllTasksTableProps> = ({ tasks, deleteTask }) => {
                                             </DropdownMenuItem>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem>
-                                                <Button 
-                                                onClick={() => deleteTask(index)}
-                                                variant={'destructive'} className=" w-full">DELETE</Button>
+                                                <Button
+                                                    onClick={() => handleDeleteClick(index)}
+                                                    variant={'destructive'} className=" w-full">DELETE</Button>
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
