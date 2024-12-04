@@ -6,6 +6,7 @@ import NewTaskCard from '@/components/NewTaskCard'
 import { Task } from '@/types/Task';
 import { Select } from "@/components/ui/select";
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from '@/hooks/use-toast';
 
 const Tasks: React.FC = () => {
 
@@ -14,6 +15,8 @@ const Tasks: React.FC = () => {
     const [filterPriority, setFilterPriority] = useState<string>('');
     const [isOpen, setIsOpen] = useState(false);
     const [searchInput, setSearchInput] = useState<string>('');
+
+    const { toast } = useToast();
 
     useEffect(() => {
         const storedTasks = localStorage.getItem("tasks");
@@ -61,6 +64,14 @@ const Tasks: React.FC = () => {
         setTasks(updatedTasks);
         setFilteredTasks(updatedTasks);
         saveTaskToLocalStorage(updatedTasks)
+
+        // push notif using toaster
+
+        toast({
+            description: 'Successfully added a new task.',
+            className: 'bg-green-300'
+        })
+
     };
 
     const deleteTask = (index: number) => {
@@ -72,6 +83,13 @@ const Tasks: React.FC = () => {
         setFilteredTasks(updatedTasks)
         setTasks(updatedTasks)
         saveTaskToLocalStorage(updatedTasks)
+
+        // add toast
+
+        toast({
+            description: 'Successfully deleted a task.',
+            variant: 'destructive'
+        })
     }
 
     const openModal = () => {
@@ -99,7 +117,7 @@ const Tasks: React.FC = () => {
                         type='text' placeholder='Search here...' className='h-10 px-10' />
                 </div>
             </div>
-            < div className="mt-20 w-full" >
+            < div className="mt-10 w-full" >
                 <div className=" w-40 mb-2">
                     <Select
                         value={filterPriority}

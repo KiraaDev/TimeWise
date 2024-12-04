@@ -25,16 +25,21 @@ const NewTaskCard: React.FC<NewTaskCardProps> = ({ closeModal, addNewTask }) => 
     const [priority, setPriority] = useState<"low" | "medium" | "high">("low");
     const [estimatedTime, setEstimatedTime] = useState('');
     const [timeUnit, setTimeUnit] = useState<"M" | "H" | "D">("M");
-    
-    const [date, setDate] = useState<Date>()
+
+    const [date, setDate] = useState<Date | undefined>(undefined)
 
     const [hour, setHour] = useState<string>('')
     const [anteMeridiem, setAnteMeridiem] = useState<string>('')
 
+    const [errorMsg, setErrorMsg] = useState<string>('')
 
     const handleSubmit = (e: React.FormEvent) => {
 
         e.preventDefault();
+
+        if (title == "" || body == "" || estimatedTime == "" || date == undefined || hour == "" || anteMeridiem == "") {
+            return setErrorMsg('All fields are required')
+        }
 
         // create new task by passing all states 
         const newTask = {
@@ -48,26 +53,31 @@ const NewTaskCard: React.FC<NewTaskCardProps> = ({ closeModal, addNewTask }) => 
         };
         // calling the addNewTask function
         addNewTask(newTask)
+
         //closing modal
         closeModal()
+
     }
-    
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50 overflow-y-scroll">
             <Card className="w-[40rem] absolute z-20 ">
                 <CardHeader className="flex justify-between flex-row">
                     <div>
-                        <CardTitle>Create New Task</CardTitle>
+                        <CardTitle className="text-2xl">Create New Task</CardTitle>
                         <CardDescription>Fill in the details for your new task</CardDescription>
+                        {
+                            errorMsg != "" ? <p className="text-red-700">{errorMsg}</p> : ''
+                        }
                     </div>
                     <div>
                         <Button onClick={closeModal} variant={"destructive"}>X</Button>
                     </div>
                 </CardHeader>
-                <form onSubmit={handleSubmit}>
+                <form>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="title">Title</Label>
+                            <Label htmlFor="title">Title*</Label>
                             <Input
                                 id="title"
                                 placeholder="Enter task title"
@@ -77,7 +87,7 @@ const NewTaskCard: React.FC<NewTaskCardProps> = ({ closeModal, addNewTask }) => 
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="body">Body</Label>
+                            <Label htmlFor="body">Body*</Label>
                             <Textarea
                                 id="body"
                                 placeholder="Enter task description"
@@ -87,14 +97,14 @@ const NewTaskCard: React.FC<NewTaskCardProps> = ({ closeModal, addNewTask }) => 
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="priority">Priority</Label>
+                            <Label htmlFor="priority">Priority*</Label>
                             <Select
 
                                 value={priority}
                                 onValueChange={(value) => setPriority(value as "low" | "medium" | "high")}
                                 required>
                                 <SelectTrigger id="priority">
-                                    <SelectValue placeholder="Select priority" />
+                                    <SelectValue placeholder="Select priority*" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="high">High</SelectItem>
@@ -104,8 +114,8 @@ const NewTaskCard: React.FC<NewTaskCardProps> = ({ closeModal, addNewTask }) => 
                             </Select>
                         </div>
                         <div className="space-y-2 ">
-                            <Label htmlFor="estimatedTime">Date</Label>
-                            <div>
+                            <Label htmlFor="estimatedTime">Date*</Label>
+                            <div className="flex gap-2">
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button variant={'outline'}>
@@ -124,56 +134,50 @@ const NewTaskCard: React.FC<NewTaskCardProps> = ({ closeModal, addNewTask }) => 
                                         />
                                     </PopoverContent>
                                 </Popover>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button variant={'outline'}>
-                                            { hour == '' && anteMeridiem == '' ? "Hour" :  `${hour} ${anteMeridiem}`}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className=" flex gap-5">
-                                        <Select
+                                <div className="w-20">
+                                    <Select
                                         value={hour}
                                         onValueChange={(val) => setHour(val)}
                                         required
-                                        >
-                                            <SelectTrigger>
-                                                {hour == "" ? 'Choose' : hour}
-                                                </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="12">12</SelectItem>
-                                                <SelectItem value="11">11</SelectItem>
-                                                <SelectItem value="10">10</SelectItem>
-                                                <SelectItem value="9">9</SelectItem>
-                                                <SelectItem value="8">8</SelectItem>
-                                                <SelectItem value="7">7</SelectItem>
-                                                <SelectItem value="6">6</SelectItem>
-                                                <SelectItem value="5">5</SelectItem>
-                                                <SelectItem value="4">4</SelectItem>
-                                                <SelectItem value="3">3</SelectItem>
-                                                <SelectItem value="2">2</SelectItem>
-                                                <SelectItem value="1">1</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <Select
+                                    >
+                                        <SelectTrigger>
+                                            {hour == "" ? 'Hour' : hour}
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="12">12</SelectItem>
+                                            <SelectItem value="11">11</SelectItem>
+                                            <SelectItem value="10">10</SelectItem>
+                                            <SelectItem value="9">9</SelectItem>
+                                            <SelectItem value="8">8</SelectItem>
+                                            <SelectItem value="7">7</SelectItem>
+                                            <SelectItem value="6">6</SelectItem>
+                                            <SelectItem value="5">5</SelectItem>
+                                            <SelectItem value="4">4</SelectItem>
+                                            <SelectItem value="3">3</SelectItem>
+                                            <SelectItem value="2">2</SelectItem>
+                                            <SelectItem value="1">1</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <Select
                                         value={anteMeridiem}
                                         onValueChange={(value) => setAnteMeridiem(value)}
                                         required
-                                        >
-                                            <SelectTrigger>
+                                    >
+                                        <SelectTrigger>
                                             {anteMeridiem == "" ? 'Ante Meridiem' : anteMeridiem}
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="AM">AM</SelectItem>
-                                                <SelectItem value="PM">PM</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </PopoverContent>
-                                </Popover>
-
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="AM">AM</SelectItem>
+                                            <SelectItem value="PM">PM</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="estimatedTime">Estimated Time</Label>
+                            <Label htmlFor="estimatedTime">Estimated Time*</Label>
                             <Select
                                 value={timeUnit}
                                 onValueChange={(value) => setTimeUnit(value as "M" | "H" | "D")}
@@ -187,6 +191,7 @@ const NewTaskCard: React.FC<NewTaskCardProps> = ({ closeModal, addNewTask }) => 
                                 </SelectContent>
                             </Select>
                             <Input
+                                className="w-full"
                                 id="estimatedTime"
                                 type="number"
                                 placeholder="Enter estimated time"
@@ -200,7 +205,7 @@ const NewTaskCard: React.FC<NewTaskCardProps> = ({ closeModal, addNewTask }) => 
 
                     </CardContent>
                     <CardFooter>
-                        <Button type="submit" className="w-full">Create Task</Button>
+                        <Button onClick={handleSubmit} type="submit" className="w-full">Create Task</Button>
                     </CardFooter>
                 </form>
             </Card>

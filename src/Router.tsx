@@ -16,6 +16,9 @@ export const router = createBrowserRouter([
             {
                 path: '/tasks',
                 element: <Tasks />
+            },
+            {
+                path: 'task:id'
             }
         ]
     },
