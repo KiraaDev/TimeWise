@@ -3,6 +3,7 @@ import AppLayout from './components/layout/AppLayout'
 import Dashboard from './pages/Dashboard'
 import Tasks from './pages/Tasks'
 import NotFound from './pages/NotFound'
+import TaskPage from './pages/Task'
 
 export const router = createBrowserRouter([
     {
@@ -18,7 +19,8 @@ export const router = createBrowserRouter([
                 element: <Tasks />
             },
             {
-                path: 'task:id'
+                path: '/task/:id',
+                element: <TaskPage />
             }
         ]
     },

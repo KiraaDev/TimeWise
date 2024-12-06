@@ -19,6 +19,7 @@ import {
 } from "./ui/dropdown-menu"
 import { Button } from "./ui/button";
 import DeleteModal from "./DeleteModal";
+import { formatTime } from "@/utils/formatTime";
 
 interface AllTasksTableProps {
     tasks: Task[];
@@ -61,6 +62,7 @@ const AllTaskTable: React.FC<AllTasksTableProps> = ({ tasks, deleteTask }) => {
                         <TableHead className="border-[1px] text-gray-700 text-center">Status</TableHead>
                         <TableHead className="border-[1px] text-gray-700">Estimated Time</TableHead>
                         <TableHead className="border-[1px] text-gray-700">Day | Date</TableHead>
+                        <TableHead className="border-[1px] text-gray-700">Time Spend</TableHead>
                         <TableHead className="border-[1px] text-gray-700">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -82,12 +84,15 @@ const AllTaskTable: React.FC<AllTasksTableProps> = ({ tasks, deleteTask }) => {
                                 <TableCell className="border-[1px] text-center">{task.status}</TableCell>
                                 <TableCell className="border-[1px] font-semibold text-center">{task.estimatedTime}{task.timeUnit.toLocaleLowerCase()}</TableCell>
                                 <TableCell className="border-[1px] font-semibold text-center">{task.date && new Date(task.date).toDateString()}</TableCell>
+                                <TableCell className="border-[1px] font-semibold text-center">{task.timeSpent ? formatTime(task.timeSpent) : "0m 0s"}</TableCell>
                                 <TableCell className="border-[1px]">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger className=' text-center w-full font-extrabold text-2xl'>⋮</DropdownMenuTrigger>
                                         <DropdownMenuContent>
                                             <DropdownMenuItem>
-                                                <Button variant={'default'} className="w-full">View Task</Button>
+                                                <Button variant={'default'} className="w-full">
+                                                    <a href={`task/${index}`}>View Task</a>
+                                                </Button>
                                             </DropdownMenuItem>
                                             <DropdownMenuItem>
                                                 <Button className=" w-full bg-yellow-500 hover:bg-yellow-700">EDIT</Button>

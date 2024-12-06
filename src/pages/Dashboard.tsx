@@ -6,21 +6,24 @@ const Dashboard: React.FC = () => {
 
   const [highPriorityTasks, setHighPriorityTasks] = React.useState([]);
   const [allTaskCount, setAllTaskCount] = React.useState(0);
+  const [completedTasks, setCompletedTasks] = React.useState(0);
 
   React.useEffect(() => {
 
     const storedTasks = localStorage.getItem("tasks");
-    
+
     if (storedTasks) {
 
       let tasks = JSON.parse(storedTasks);
 
       // get tasks count
       setAllTaskCount(tasks.length)
-    
-      const filteredTask = tasks.filter((task: Task) => task.priority === 'high');
 
-      setHighPriorityTasks(filteredTask);
+      setHighPriorityTasks(tasks);
+
+      const completedTasks = tasks.filter((task: Task) => task.status === 'completed');
+
+      setCompletedTasks(completedTasks.length)
     }
 
   }, [])
@@ -28,7 +31,8 @@ const Dashboard: React.FC = () => {
 
   return (
     <>
-      <div className="flex gap-5">
+      <div className="flex gap-5 flex-wrap">
+        {/* Dashboard Cards */}
         <DashboardCard
           cardTitle={'Total Task(s)'}
           cardContentCount={allTaskCount}
@@ -41,6 +45,13 @@ const Dashboard: React.FC = () => {
           cardDetailsPath={'/tasks'}
           cardBg="from-red-400 to-red-500"
         />
+        <DashboardCard
+          cardTitle={'Completed Task(s)'}
+          cardContentCount={completedTasks}
+          cardDetailsPath={'/tasks'}
+          cardBg="from-green-400 to-green-500"
+        />
+
       </div>
       <div className="mt-20 w-full">
         <QuickViewTable

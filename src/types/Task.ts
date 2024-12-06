@@ -5,5 +5,6 @@ export interface Task {
     status: string;
     estimatedTime: string; 
     timeUnit: 'M' | 'H' | 'D';
+    timeSpent: number;
     date?: Date
 }
