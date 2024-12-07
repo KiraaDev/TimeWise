@@ -19,7 +19,11 @@ const Dashboard: React.FC = () => {
       // get tasks count
       setAllTaskCount(tasks.length)
 
-      setHighPriorityTasks(tasks);
+      const filteredTasks = tasks
+      .map((task: Task, index: number) => ({ ...task, originalIndex: index }))
+      .filter((taskObj: Task) => taskObj.priority === 'high')
+
+      setHighPriorityTasks(filteredTasks);
 
       const completedTasks = tasks.filter((task: Task) => task.status === 'completed');
 
@@ -31,7 +35,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <>
-      <div className="flex gap-5 flex-wrap">
+      <div className="flex gap-2 flex-wrap">
         {/* Dashboard Cards */}
         <DashboardCard
           cardTitle={'Total Task(s)'}

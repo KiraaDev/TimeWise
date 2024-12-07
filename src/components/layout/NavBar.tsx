@@ -1,3 +1,4 @@
+
 import { Button } from "../ui/button"
 import { Sheet, SheetTrigger, SheetContent } from "../ui/sheet"
 import { Toggle } from "../ui/toggle"
@@ -7,7 +8,7 @@ function NavBar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white dark:border-gray-800 dark:bg-gray-950">
       <div className="container mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
-        <a href="#" className="flex items-center gap-2" >
+        <a href="/" className="flex items-center gap-2" >
           <h1 className=" font-semibold text-xl">TimeWise</h1>
           <span className="sr-only">TimeWise</span>
         </a>
@@ -27,18 +28,18 @@ function NavBar() {
             Tasks
           </a>
           <a
-            href="#"
+            href="/dailySummary"
             className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
             
           >
-            Services
+            Daily Summary
           </a>
           <a
             href="#"
             className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
             
           >
-            Contact
+            Weekly Overview
           </a>
         </nav>
         <div className="flex items-center gap-4">
@@ -69,18 +70,18 @@ function NavBar() {
                   Tasks
                 </a>
                 <a
-                  href="#"
+                  href="/dailySummary"
                   className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
                   
                 >
-                  Services
+                  Daily Summary
                 </a>
                 <a
                   href="#"
                   className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
                   
                 >
-                  Contact
+                   Weekly Overview
                 </a>
               </div>
             </SheetContent>

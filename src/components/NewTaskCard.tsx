@@ -11,10 +11,11 @@ import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 
 interface NewTaskCardProps {
     closeModal: () => void;
-    addNewTask: (task: Task) => void
+    addNewTask: (task: Task) => void,
+    addNewTaskWithConflict: (task: Task) => void,
 }
 
-const NewTaskCard: React.FC<NewTaskCardProps> = ({ closeModal, addNewTask }) => {
+const NewTaskCard: React.FC<NewTaskCardProps> = ({ closeModal, addNewTask, addNewTaskWithConflict }) => {
 
     const dateNow: Date = new Date()
 
@@ -24,22 +25,64 @@ const NewTaskCard: React.FC<NewTaskCardProps> = ({ closeModal, addNewTask }) => 
     const [body, setBody] = useState('');
     const [priority, setPriority] = useState<"low" | "medium" | "high">("low");
     const [estimatedTime, setEstimatedTime] = useState('');
-    const [timeUnit, setTimeUnit] = useState<"M" | "H" | "D">("M");
+    const [timeUnit, setTimeUnit] = useState<"M" | "H">("M");
 
     const [date, setDate] = useState<Date | undefined>(undefined)
 
     const [hour, setHour] = useState<string>('')
-    const [anteMeridiem, setAnteMeridiem] = useState<string>('')
+    const [anteMeridiem, setAnteMeridiem] = useState<"AM" | "PM">('AM')
 
     const [errorMsg, setErrorMsg] = useState<string>('')
+
+    const getStoredTasks = () => {
+        const storedTasks = localStorage.getItem('tasks');
+
+        return storedTasks ? JSON.parse(storedTasks) : [];
+    };
+
+    const storedTasks = getStoredTasks();
+
+    const checkConflict = (newTask: Task, existingTasks: Task[]): boolean => {
+        if (!newTask.date) return false;
+
+        for (let task of existingTasks) {
+           
+            const taskDate = new Date(task.date? task.date : '')
+
+            if (taskDate.getTime() === newTask.date.getTime() && task.timeStart == newTask.timeStart && task.anteMeridiem === newTask.anteMeridiem) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     const handleSubmit = (e: React.FormEvent) => {
 
         e.preventDefault();
 
-        if (title == "" || body == "" || estimatedTime == "" || date == undefined || hour == "" || anteMeridiem == "") {
+        if (title == "" || body == "" || estimatedTime == "" || date == undefined || hour == "") {
             return setErrorMsg('All fields are required')
         }
+
+        const selectedDate = new Date(date);
+        const selectedHour = parseInt(hour);
+        const selectedAMPM = anteMeridiem;
+        if (selectedAMPM === "PM" && selectedHour < 12) {
+            selectedDate.setHours(selectedHour + 12);  // Convert PM times to 24-hour format
+        } else if (selectedAMPM === "AM" && selectedHour === 12) {
+            selectedDate.setHours(0);  // Convert 12 AM to midnight
+        } else {
+            selectedDate.setHours(selectedHour);  // Set the hour for AM times
+        }
+
+        // Check if the selected date/time is in the past
+        const currentDate = new Date();
+        if (selectedDate < currentDate) {
+            setErrorMsg("The selected time cannot be in the past.");
+            return;
+        }
+
+        const timeStart = parseInt(hour)
 
         // create new task by passing all states 
         const newTask = {
@@ -48,9 +91,29 @@ const NewTaskCard: React.FC<NewTaskCardProps> = ({ closeModal, addNewTask }) => 
             priority,
             status: 'not-started',
             estimatedTime,
+            timeSpent: 0,
             timeUnit,
             date,
+            timeStart,
+            anteMeridiem
         };
+
+        const hasConflict = checkConflict(newTask, storedTasks);
+
+        if (hasConflict) {
+            setErrorMsg('There is a conflict with an existing task.');
+
+            const editedNewTask = { ...newTask }; 
+
+            editedNewTask.timeStart += 1;
+
+            addNewTaskWithConflict(editedNewTask)
+
+            closeModal()
+            
+            return;
+        }
+
         // calling the addNewTask function
         addNewTask(newTask)
 
@@ -162,11 +225,11 @@ const NewTaskCard: React.FC<NewTaskCardProps> = ({ closeModal, addNewTask }) => 
                                 <div>
                                     <Select
                                         value={anteMeridiem}
-                                        onValueChange={(value) => setAnteMeridiem(value)}
+                                        onValueChange={(value) => setAnteMeridiem(value as "AM" | "PM")}
                                         required
                                     >
                                         <SelectTrigger>
-                                            {anteMeridiem == "" ? 'Ante Meridiem' : anteMeridiem}
+                                            {anteMeridiem == "AM" || "PM" ? 'Ante Meridiem' : anteMeridiem}
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="AM">AM</SelectItem>
@@ -180,7 +243,7 @@ const NewTaskCard: React.FC<NewTaskCardProps> = ({ closeModal, addNewTask }) => 
                             <Label htmlFor="estimatedTime">Estimated Time*</Label>
                             <Select
                                 value={timeUnit}
-                                onValueChange={(value) => setTimeUnit(value as "M" | "H" | "D")}
+                                onValueChange={(value) => setTimeUnit(value as "M" | "H")}
                             >
                                 <SelectTrigger id="time">
                                     <SelectValue placeholder="Select Time " />

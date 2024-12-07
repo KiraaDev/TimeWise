@@ -4,7 +4,9 @@ export interface Task {
     priority: 'low' | 'medium' | 'high';
     status: string;
     estimatedTime: string; 
-    timeUnit: 'M' | 'H' | 'D';
+    timeUnit: 'M' | 'H';
     timeSpent: number;
-    date?: Date
+    date?: Date,
+    timeStart?: number;
+    anteMeridiem?: 'AM' | 'PM';
 }

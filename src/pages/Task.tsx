@@ -1,4 +1,5 @@
 import StopWatch from "@/components/StopWatch";
+import TaskCard from "@/components/TaskCard";
 import { Task } from "@/types/Task";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -40,17 +41,11 @@ const TaskPage: React.FC = () => {
     }, [])
 
 
-    const formatTime = (time: number): string => {
-        const totalMinutes = Math.floor(time / 60000);
-        const totalSeconds = Math.floor((time % 60000) / 1000);
-        return `${totalMinutes}m ${totalSeconds}s`;
-    };
-
-
     return (
         <>
-            <h1>{task?.title}</h1>
-            <p>{task?.timeSpent ? formatTime(task.timeSpent) : "0m 0s"}</p>
+            <TaskCard 
+            task={task}
+            />
             <StopWatch
                 taskId={id ? id : ''}
             />

@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 const Tasks: React.FC = () => {
 
     const [tasks, setTasks] = useState<Task[]>([]);
-    const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
+    const [filteredTasks, setFilteredTasks] = useState<(Task & { originalIndex: number })[]>([]);
     const [filterPriority, setFilterPriority] = useState<string>('');
     const [isOpen, setIsOpen] = useState(false);
     const [searchInput, setSearchInput] = useState<string>('');
@@ -20,12 +20,12 @@ const Tasks: React.FC = () => {
 
     useEffect(() => {
         const storedTasks = localStorage.getItem("tasks");
-
         if (storedTasks) {
-            setTasks(JSON.parse(storedTasks));
-            setFilteredTasks(JSON.parse(storedTasks));
+            const parsedTasks = JSON.parse(storedTasks);
+            setTasks(parsedTasks);
+            setFilteredTasks(parsedTasks.map((task: Task, index: number) => ({ ...task, originalIndex: index })));
         }
-    }, [])
+    }, []);
 
     const saveTaskToLocalStorage = (tasks: Task[]) => {
         localStorage.setItem("tasks", JSON.stringify(tasks));
@@ -33,64 +33,76 @@ const Tasks: React.FC = () => {
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        setSearchInput(value)
+        setSearchInput(value);
 
-        if (value === "") {
-            setFilteredTasks(tasks);
-        } else {
-            const filtered = tasks.filter((task) =>
-                task.title.toLowerCase().includes(value.toLowerCase())
+        if (value === '') {
+            setFilteredTasks(
+                tasks.map((task, index) => ({ ...task, originalIndex: index }))
             );
+        } else {
+            const filtered = tasks
+                .map((task, index) => ({ ...task, originalIndex: index }))
+                .filter((task) =>
+                    task.title.toLowerCase().includes(value.toLowerCase())
+                );
             setFilteredTasks(filtered);
         }
-    }
+    };
 
     const handleFilterPriority = (value: string) => {
-        setFilterPriority(value)
+        setFilterPriority(value);
 
         if (value === 'all') {
-            return setFilteredTasks(tasks)
+            setFilteredTasks(tasks.map((task, index) => ({ ...task, originalIndex: index })));
+        } else {
+            const filteredPriority = tasks
+                .map((task, index) => ({ ...task, originalIndex: index }))
+                .filter((task) => task.priority === value);
+            setFilteredTasks(filteredPriority);
         }
-
-        const filteredPriority = tasks.filter((task) => task.priority === value)
-
-        setFilteredTasks(filteredPriority);
-    }
+    };
 
     // (add, update, and delete) functions
 
     const addNewTask = (newTask: Task) => {
         const updatedTasks = [...tasks, newTask];
         setTasks(updatedTasks);
-        setFilteredTasks(updatedTasks);
-        saveTaskToLocalStorage(updatedTasks)
-
-        // push notif using toaster
+        setFilteredTasks(updatedTasks.map((task, index) => ({ ...task, originalIndex: index })));
+        saveTaskToLocalStorage(updatedTasks);
 
         toast({
             description: 'Successfully added a new task.',
-            className: 'bg-green-300'
-        })
-
+            className: 'bg-green-300',
+        });
     };
 
-    const deleteTask = (index: number) => {
+    // add task with conflict 
+    const addNewTaskWithConflict = (newTask: Task) => {
+        const updatedTasks = [...tasks, newTask];
+        setTasks(updatedTasks);
+        setFilteredTasks(updatedTasks.map((task, index) => ({ ...task, originalIndex: index })));
+        saveTaskToLocalStorage(updatedTasks);
 
+        toast({
+            description: 'Successfully added a new task but moved 1 hour for started time due to conflict.',
+            className: 'bg-yellow-300',
+        });
+    };
+
+    const deleteTask = (originalIndex: number) => {
         const updatedTasks = [...tasks];
+        updatedTasks.splice(originalIndex, 1);
 
-        updatedTasks.splice(index, 1)
-
-        setFilteredTasks(updatedTasks)
-        setTasks(updatedTasks)
-        saveTaskToLocalStorage(updatedTasks)
-
-        // add toast
+        setTasks(updatedTasks);
+        setFilteredTasks(updatedTasks.map((task, index) => ({ ...task, originalIndex: index })));
+        saveTaskToLocalStorage(updatedTasks);
 
         toast({
             description: 'Successfully deleted a task.',
-            variant: 'destructive'
-        })
-    }
+            variant: 'destructive',
+        });
+    };
+
 
     const openModal = () => {
         setIsOpen(true);
@@ -107,7 +119,7 @@ const Tasks: React.FC = () => {
                 <div>
                     <Button onClick={openModal} className='h-10 px-10'>Add new task</Button>
                     {
-                        isOpen && <NewTaskCard closeModal={closeModal} addNewTask={addNewTask} />
+                        isOpen && <NewTaskCard closeModal={closeModal} addNewTask={addNewTask} addNewTaskWithConflict={addNewTaskWithConflict} />
                     }
                 </div>
                 <div>
@@ -138,7 +150,7 @@ const Tasks: React.FC = () => {
                 {/* all tasks table */}
                 <AllTaskTable
                     tasks={filteredTasks}
-                    deleteTask={deleteTask}
+                    deleteTask={(originalIndex) => deleteTask(originalIndex)}
                 />
             </div >
 

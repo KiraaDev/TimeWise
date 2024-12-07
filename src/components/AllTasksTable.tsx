@@ -20,14 +20,14 @@ import {
 import { Button } from "./ui/button";
 import DeleteModal from "./DeleteModal";
 import { formatTime } from "@/utils/formatTime";
+import { CalendarIcon, ClockIcon } from 'lucide-react'
 
 interface AllTasksTableProps {
-    tasks: Task[];
+    tasks: (Task & { originalIndex: number })[]; 
     deleteTask: (index: number) => void;
 }
 
 const AllTaskTable: React.FC<AllTasksTableProps> = ({ tasks, deleteTask }) => {
-
 
     const [index, setIndex] = useState<number | null>(null)
     const [deleteModal, setDeleteModal] = useState<boolean>(false)
@@ -56,13 +56,28 @@ const AllTaskTable: React.FC<AllTasksTableProps> = ({ tasks, deleteTask }) => {
                 <TableCaption>All Tasks</TableCaption>
                 <TableHeader className=" bg-slate-100">
                     <TableRow className="border-[1px]">
-                        <TableHead className="border-[1px] text-gray-700">Title</TableHead>
-                        <TableHead className="border-[1px] text-gray-700">Body</TableHead>
+                        <TableHead className="border-[1px] text-gray-700 w-40">Title</TableHead>
+                        <TableHead className="border-[1px] text-gray-700 w-96">Body</TableHead>
                         <TableHead className="border-[1px] text-gray-700  text-center">Priority</TableHead>
                         <TableHead className="border-[1px] text-gray-700 text-center">Status</TableHead>
-                        <TableHead className="border-[1px] text-gray-700">Estimated Time</TableHead>
-                        <TableHead className="border-[1px] text-gray-700">Day | Date</TableHead>
-                        <TableHead className="border-[1px] text-gray-700">Time Spend</TableHead>
+                        <TableHead className="border-[1px] text-gray-700">
+                            <span className="flex items-center">
+                                <ClockIcon className="w-4 h-4 mr-1" />
+                                Estimated Time
+                            </span>
+                        </TableHead>
+                        <TableHead className="border-[1px] text-gray-700">
+                            <span className="flex items-center">
+                                <CalendarIcon className="w-4 h-4 mr-1" />
+                                Day | Date
+                            </span>
+                        </TableHead>
+                        <TableHead className="border-[1px] text-gray-700">
+                            <span className="flex items-center">
+                                <ClockIcon className="w-4 h-4 mr-1" />
+                                Time Spend
+                            </span>
+                        </TableHead>
                         <TableHead className="border-[1px] text-gray-700">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -75,23 +90,23 @@ const AllTaskTable: React.FC<AllTasksTableProps> = ({ tasks, deleteTask }) => {
                         <TableRow>
                             <TableCell className="" colSpan={5}>No Tasks Found</TableCell>
                         </TableRow>
-                        : tasks.map((task, index) => (
+                        : tasks.map((task) => (
 
-                            <TableRow key={index} className="h-20">
+                            <TableRow key={task.originalIndex} className="h-20">
                                 <TableCell className="font-semibold border-[1px]">{task.title}</TableCell>
                                 <TableCell className="border-[1px]">{task.body}</TableCell>
                                 <TableCell className="border-[1px] w-14">{getBadge(task.priority)}</TableCell>
                                 <TableCell className="border-[1px] text-center">{task.status}</TableCell>
                                 <TableCell className="border-[1px] font-semibold text-center">{task.estimatedTime}{task.timeUnit.toLocaleLowerCase()}</TableCell>
-                                <TableCell className="border-[1px] font-semibold text-center">{task.date && new Date(task.date).toDateString()}</TableCell>
-                                <TableCell className="border-[1px] font-semibold text-center">{task.timeSpent ? formatTime(task.timeSpent) : "0m 0s"}</TableCell>
+                                <TableCell className="border-[1px] font-semibold text-center">{task.date && new Date(task.date).toDateString()} | {task.timeStart}{task.anteMeridiem}</TableCell>
+                                <TableCell className="border-[1px] font-semibold text-center">{task.timeSpent ? formatTime(task.timeSpent) : "0h 0m 0s"}</TableCell>
                                 <TableCell className="border-[1px]">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger className=' text-center w-full font-extrabold text-2xl'>⋮</DropdownMenuTrigger>
                                         <DropdownMenuContent>
                                             <DropdownMenuItem>
                                                 <Button variant={'default'} className="w-full">
-                                                    <a href={`task/${index}`}>View Task</a>
+                                                    <a href={`task/${task.originalIndex}`}>View Task</a>
                                                 </Button>
                                             </DropdownMenuItem>
                                             <DropdownMenuItem>
@@ -100,7 +115,7 @@ const AllTaskTable: React.FC<AllTasksTableProps> = ({ tasks, deleteTask }) => {
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem>
                                                 <Button
-                                                    onClick={() => handleDeleteClick(index)}
+                                                    onClick={() => handleDeleteClick(task.originalIndex)}
                                                     variant={'destructive'} className=" w-full">DELETE</Button>
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
