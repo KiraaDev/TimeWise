@@ -1,8 +1,7 @@
-
-export const formatTime = (time: number): string => {
-    const totalHours = Math.floor(time / 3600000); 
-    const totalMinutes = Math.floor(time / 60000);
-    const totalSeconds = Math.floor((time % 60000) / 1000);
-    
-    return `${totalHours}h ${totalMinutes}m ${totalSeconds}s`;
+export const formatTime = (milliseconds: number): string => {
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${hours}h ${minutes}m ${seconds}s`;
 };
