@@ -8,6 +8,7 @@ import { Textarea } from "./ui/textarea"
 import { Task } from "@/types/Task";
 import { Calendar } from "./ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
+import { resolveConflict } from "@/utils/checkConflictAndAdjust";
 
 interface NewTaskCardProps {
     closeModal: () => void;
@@ -42,20 +43,6 @@ const NewTaskCard: React.FC<NewTaskCardProps> = ({ closeModal, addNewTask, addNe
 
     const storedTasks = getStoredTasks();
 
-    const checkConflict = (newTask: Task, existingTasks: Task[]): boolean => {
-        if (!newTask.date) return false;
-
-        for (let task of existingTasks) {
-           
-            const taskDate = new Date(task.date? task.date : '')
-
-            if (taskDate.getTime() === newTask.date.getTime() && task.timeStart == newTask.timeStart && task.anteMeridiem === newTask.anteMeridiem) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     const handleSubmit = (e: React.FormEvent) => {
 
         e.preventDefault();
@@ -72,7 +59,7 @@ const NewTaskCard: React.FC<NewTaskCardProps> = ({ closeModal, addNewTask, addNe
         } else if (selectedAMPM === "AM" && selectedHour === 12) {
             selectedDate.setHours(0);  // Convert 12 AM to midnight
         } else {
-            selectedDate.setHours(selectedHour);  // Set the hour for AM times
+            selectedDate.setHours(selectedHour);
         }
 
         // Check if the selected date/time is in the past
@@ -98,27 +85,21 @@ const NewTaskCard: React.FC<NewTaskCardProps> = ({ closeModal, addNewTask, addNe
             anteMeridiem
         };
 
-        const hasConflict = checkConflict(newTask, storedTasks);
+        const resolvedTask = resolveConflict(newTask, storedTasks);
 
-        if (hasConflict) {
-            setErrorMsg('There is a conflict with an existing task.');
-
-            const editedNewTask = { ...newTask }; 
-
-            editedNewTask.timeStart += 1;
-
-            addNewTaskWithConflict(editedNewTask)
-
-            closeModal()
-            
-            return;
+        // Check if resolveConflict made changes
+        const conflictResolved =
+            resolvedTask.timeStart !== newTask.timeStart || resolvedTask.anteMeridiem !== newTask.anteMeridiem;
+    
+        if (conflictResolved) {
+            addNewTaskWithConflict(resolvedTask);
+        } else {
+            // No conflict, add the task as is
+            addNewTask(newTask);
         }
-
-        // calling the addNewTask function
-        addNewTask(newTask)
-
-        //closing modal
-        closeModal()
+    
+        // Close the modal
+        closeModal();
 
     }
 

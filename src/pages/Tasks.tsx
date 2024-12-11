@@ -84,7 +84,7 @@ const Tasks: React.FC = () => {
         saveTaskToLocalStorage(updatedTasks);
 
         toast({
-            description: 'Successfully added a new task but moved 1 hour for started time due to conflict.',
+            description: 'Successfully added a new task but adjusted to hour that is available due to conflict.',
             className: 'bg-yellow-300',
         });
     };

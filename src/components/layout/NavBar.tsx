@@ -35,7 +35,7 @@ function NavBar() {
             Daily Summary
           </a>
           <a
-            href="#"
+            href="/weeklyOverview"
             className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
             
           >
@@ -77,7 +77,7 @@ function NavBar() {
                   Daily Summary
                 </a>
                 <a
-                  href="#"
+                  href="/weeklyOverview"
                   className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
                   
                 >

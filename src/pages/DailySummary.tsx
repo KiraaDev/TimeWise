@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Task } from "@/types/Task";
 import { isSameDay } from "@/utils/sameDay";
+import { formatTime } from "@/utils/formatTime";
 
 const DailySummary: React.FC = () => {
 
@@ -19,7 +20,7 @@ const DailySummary: React.FC = () => {
         let actualTotal = 0;
 
         todayTasks.forEach((task) => {
- 
+
             const estimatedMinutes = convertToMinutes(task.estimatedTime, task.timeUnit);
             if (!isNaN(estimatedMinutes)) {
                 estimatedTotal += estimatedMinutes;
@@ -80,10 +81,30 @@ const DailySummary: React.FC = () => {
         return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     };
 
+    const currentDate = new Date();
+
+    const formattedDate = currentDate.toDateString();
+
+    function convertTimeToMilliseconds(time: number, unit: 'M' | 'H'): number {
+        const msInMinute = 60000;
+        const msInHour = 3600000;
+
+        if (unit === 'M') {
+            return time * msInMinute;
+        } else if (unit === 'H') {
+
+            return time * msInHour;
+        }
+        return 0; 
+    }
 
     return (
         <>
+            <div className="flex justify-center items-center w-full mb-10">
+                <h1 className=" font-bold text-2xl">{formattedDate}</h1>
+            </div>
             <div className=" flex gap-4 w-full justify-center items-center">
+
                 <Card className=" w-96 flex justify-center items-center flex-col">
                     <CardHeader>
                         <CardTitle>Total Estimated Time</CardTitle>
@@ -100,6 +121,29 @@ const DailySummary: React.FC = () => {
                         <p className="text-4xl font-bold">{totalActual}</p>
                     </CardContent>
                 </Card>
+            </div>
+            <div className="flex justify-center items-center w-full mt-10 flex-col">
+                {
+                    tasks.filter((task: Task) => {
+                        const taskDate = task.date ? new Date(task.date) : new Date();
+
+
+                        // Remove time part from current date
+                        currentDate.setHours(0, 0, 0, 0);
+
+                        return taskDate.getTime() === currentDate.getTime();
+                    }).map((task: Task, index: number) => (
+                        <div key={index} className="space-y-2 w-[50%]">
+                            <div className="flex justify-between items-center">
+                                <span className="font-medium">{task.title}</span>
+                                <span className="text-sm text-muted-foreground font-semibold">
+                                    {formatTime(task.timeSpent)} / {task.estimatedTime}{task.timeUnit.toLowerCase()}
+                                </span>
+                            </div>
+                            <progress className="h-4 w-full rounded-lg" color="#fff" value={task.timeSpent} max={convertTimeToMilliseconds(parseInt(task.estimatedTime), task.timeUnit)}></progress>
+                        </div>
+                    ))
+                }
             </div>
         </>
     )

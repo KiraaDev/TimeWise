@@ -5,6 +5,7 @@ import Tasks from './pages/Tasks'
 import NotFound from './pages/NotFound'
 import TaskPage from './pages/Task'
 import DailySummary from './pages/DailySummary'
+import WeeklyOverview from './pages/WeeklyOverview'
 
 export const router = createBrowserRouter([
     {
@@ -26,6 +27,10 @@ export const router = createBrowserRouter([
             {
                 path: '/dailySummary',
                 element: <DailySummary />
+            },
+            {
+                path: '/weeklyOverview',
+                element: <WeeklyOverview />
             }
         ]
     },
